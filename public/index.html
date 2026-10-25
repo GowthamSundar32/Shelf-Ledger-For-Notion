@@ -1,0 +1,2557 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#12362a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Shelf Ledger</title>
+    <link rel="icon" href="logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f5efe3;
+        --card: #fffdf8;
+        --ink: #1c1a16;
+        --mute: #6d675a;
+        --line: #e7dfcd;
+        --pri: #1f6f4a;
+        --onpri: #fff;
+        --amber: #e8a33d;
+        --bad: #b42318;
+        --onbad: #fff;
+        --hdr: #12362a;
+        --shadow:
+          0 1px 2px rgba(40, 30, 10, 0.06), 0 10px 28px rgba(40, 30, 10, 0.08);
+        --r: 18px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1511;
+          --card: #17201a;
+          --ink: #efe9da;
+          --mute: #a1a898;
+          --line: #26332a;
+          --pri: #4ec58a;
+          --onpri: #06210f;
+          --amber: #f0b45a;
+          --bad: #ff8a7a;
+          --onbad: #2a0905;
+          --hdr: #0a1f17;
+          --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.5 Manrope,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      .app {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: var(--hdr)
+          repeating-linear-gradient(
+            90deg,
+            transparent 0 22px,
+            rgba(255, 255, 255, 0.04) 22px 24px
+          );
+        color: #f6f0df;
+        padding: calc(12px + env(safe-area-inset-top)) clamp(14px, 3vw, 40px)
+          12px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-right: auto;
+      }
+      .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: block;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: Fraunces, Georgia, serif;
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      h1 {
+        font-size: clamp(19px, 3vw, 25px);
+        line-height: 1.1;
+      }
+      h1 + p {
+        margin: 0;
+        font-size: 12.5px;
+        opacity: 0.75;
+      }
+      h2 {
+        font-size: 21px;
+      }
+      h3 {
+        font-size: 17px;
+        color: var(--pri);
+      }
+      nav {
+        display: flex;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px;
+        border-radius: 14px;
+      }
+      .navb {
+        min-height: 40px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 11px;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .navb.on {
+        background: #f6f0df;
+        color: #12362a;
+      }
+      .npill {
+        font-size: 12px;
+        background: var(--amber);
+        color: #12362a;
+        border-radius: 99px;
+        padding: 1px 7px;
+        margin-left: 4px;
+      }
+      .npill:empty {
+        display: none;
+      }
+      .hbtn {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: 0;
+        background: rgba(255, 255, 255, 0.1);
+        color: inherit;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      @media (max-width: 640px) {
+        nav {
+          order: 3;
+          width: 100%;
+        }
+        .navb {
+          flex: 1;
+        }
+      }
+      main {
+        flex: 1;
+        display: grid;
+        gap: clamp(14px, 2vw, 28px);
+        padding: clamp(14px, 3vw, 32px) clamp(14px, 3vw, 40px)
+          calc(28px + env(safe-area-inset-bottom));
+        grid-template-columns: minmax(0, 1fr);
+        align-content: start;
+      }
+      @media (min-width: 960px) {
+        #viewAdd {
+          grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+          align-items: start;
+        }
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        box-shadow: var(--shadow);
+        padding: clamp(14px, 2.2vw, 24px);
+        min-width: 0;
+      }
+      .cardtop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--bg);
+        padding: 4px;
+        border-radius: 14px;
+      }
+      .tab {
+        min-height: 40px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 11px;
+        background: transparent;
+        color: var(--mute);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .tab.on {
+        background: var(--card);
+        color: var(--ink);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+      }
+      .switch {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        user-select: none;
+        position: relative;
+      }
+      .switch input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+      }
+      .track {
+        width: 46px;
+        height: 26px;
+        border-radius: 99px;
+        background: color-mix(in srgb, currentColor 25%, transparent);
+        position: relative;
+        transition: 0.2s;
+        flex: none;
+      }
+      .track::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        transition: 0.2s;
+      }
+      .switch input:checked + .track {
+        background: var(--pri);
+      }
+      .switch input:checked + .track::after {
+        transform: translateX(20px);
+      }
+      .switch input:focus-visible + .track {
+        outline: 3px solid var(--amber);
+        outline-offset: 2px;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 50px;
+        padding: 12px 14px;
+        border: 1.5px solid var(--line);
+        border-radius: 12px;
+        background: var(--bg);
+        color: var(--ink);
+        font: inherit;
+        font-size: 16px;
+      }
+      textarea {
+        min-height: 130px;
+        resize: vertical;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 3px solid color-mix(in srgb, var(--pri) 45%, transparent);
+        border-color: var(--pri);
+      }
+      input[aria-invalid="true"],
+      textarea[aria-invalid="true"] {
+        border-color: var(--bad);
+      }
+      input[type="date"] {
+        min-height: 50px;
+      }
+      label.f {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--mute);
+        margin: 14px 0 6px;
+      }
+      .opt {
+        font-weight: 600;
+        opacity: 0.8;
+      }
+      .ferr {
+        margin: 6px 0 0;
+        color: var(--bad);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 420px) {
+        .two {
+          grid-template-columns: 1fr;
+        }
+      }
+      .bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .bar > input,
+      .bar > textarea {
+        flex: 1 1 220px;
+        width: auto;
+      }
+      .btn {
+        min-height: 50px;
+        padding: 0 20px;
+        border-radius: 12px;
+        border: 1.5px solid transparent;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          transform 0.08s,
+          opacity 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: inherit;
+        background: transparent;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .pri {
+        background: var(--pri);
+        color: var(--onpri);
+      }
+      .ghost {
+        border-color: var(--line);
+      }
+      .danger {
+        background: var(--bad);
+        color: var(--onbad);
+      }
+      .dangerline {
+        color: var(--bad);
+        border-color: color-mix(in srgb, var(--bad) 40%, transparent);
+      }
+      .sm {
+        min-height: 38px;
+        padding: 0 14px;
+        font-size: 14px;
+      }
+      .bar > .btn {
+        flex: 0 0 auto;
+      }
+      @media (max-width: 560px) {
+        .bar > .btn {
+          flex: 1;
+        }
+      }
+      .lnk {
+        background: none;
+        border: 0;
+        color: var(--pri);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 12px 0 0;
+      }
+      .hint {
+        color: var(--mute);
+        font-size: 13.5px;
+        margin: 8px 0 0;
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .row:last-child {
+        border: 0;
+      }
+      .cv {
+        width: 46px;
+        height: 66px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex: none;
+        background: var(--line);
+      }
+      .ph {
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+      }
+      .meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .meta strong {
+        display: block;
+        overflow-wrap: anywhere;
+        line-height: 1.3;
+      }
+      .meta > span {
+        color: var(--mute);
+        font-size: 14px;
+        display: block;
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .chips i {
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 9px;
+        border-radius: 99px;
+        background: color-mix(in srgb, var(--amber) 24%, transparent);
+      }
+      .chips i.m {
+        background: var(--bg);
+        color: var(--mute);
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+      }
+      .chips i.ok {
+        background: color-mix(in srgb, var(--pri) 22%, transparent);
+        color: var(--pri);
+      }
+      .acts {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: none;
+      }
+      details.desc {
+        margin-top: 6px;
+        font-size: 14px;
+      }
+      details.desc summary {
+        cursor: pointer;
+        color: var(--pri);
+        font-weight: 700;
+      }
+      details.desc p {
+        margin: 6px 0 0;
+        color: var(--mute);
+        white-space: pre-wrap;
+      }
+      .listhead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .count {
+        display: inline-block;
+        min-width: 26px;
+        padding: 0 8px;
+        border-radius: 99px;
+        background: var(--pri);
+        color: var(--onpri);
+        font:
+          700 14px/26px Manrope,
+          sans-serif;
+        text-align: center;
+        vertical-align: 3px;
+        margin-left: 6px;
+      }
+      .empty {
+        padding: 26px 8px;
+        text-align: center;
+        color: var(--mute);
+      }
+      .savebar {
+        position: sticky;
+        bottom: 0;
+        padding: 14px 0 calc(4px + env(safe-area-inset-bottom));
+        background: linear-gradient(to bottom, transparent, var(--card) 35%);
+      }
+      .savebar .btn {
+        width: 100%;
+      }
+      .grp {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        margin-top: 10px;
+      }
+      .grp .q {
+        font-weight: 700;
+        margin-bottom: 8px;
+        overflow-wrap: anywhere;
+      }
+      .nomatch {
+        color: var(--bad);
+        font-size: 14px;
+      }
+      /* library */
+      .libtop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .filters select {
+        min-height: 44px;
+      }
+      .trow,
+      .thead {
+        display: grid;
+        grid-template-columns:
+          minmax(220px, 2.6fr)
+          1.1fr 100px 90px 112px 112px 76px;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 8px;
+      }
+      .thead {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--mute);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--line);
+        padding-top: 16px;
+      }
+      .trow {
+        border-bottom: 1px solid var(--line);
+        cursor: pointer;
+        border-radius: 10px;
+      }
+      .trow:hover,
+      .trow:focus-visible {
+        background: color-mix(in srgb, var(--amber) 12%, transparent);
+      }
+      .tc {
+        min-width: 0;
+        font-size: 14.5px;
+        overflow-wrap: anywhere;
+      }
+      .t-title {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .stat {
+        display: inline-block;
+        font-size: 12.5px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 99px;
+        background: var(--bg);
+      }
+      .stat.s-Finished {
+        background: color-mix(in srgb, var(--pri) 22%, transparent);
+        color: var(--pri);
+      }
+      .stat.s-Reading {
+        background: color-mix(in srgb, var(--amber) 30%, transparent);
+      }
+      .star {
+        color: var(--amber);
+        letter-spacing: 1px;
+        white-space: nowrap;
+      }
+      .meta > .mmeta {
+        display: none;
+      }
+      @media (max-width: 860px) {
+        .thead {
+          display: none;
+        }
+        .trow {
+          grid-template-columns: 1fr;
+        }
+        .tc:not(.t-title) {
+          display: none;
+        }
+        .meta > .mmeta {
+          display: block;
+        }
+      }
+      /* dialogs */
+      dialog {
+        border: 0;
+        border-radius: 22px;
+        padding: 0;
+        width: min(540px, calc(100vw - 24px));
+        max-height: 92dvh;
+        overflow: auto;
+        background: var(--card);
+        color: var(--ink);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+      }
+      dialog.big {
+        width: min(880px, calc(100vw - 24px));
+      }
+      dialog::backdrop {
+        background: rgba(10, 20, 15, 0.55);
+        backdrop-filter: blur(3px);
+      }
+      .dbody {
+        padding: 22px;
+      }
+      .dbar {
+        position: sticky;
+        bottom: 0;
+        background: var(--card);
+        padding: 14px 0 4px;
+        margin-top: 18px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        border-top: 1px solid var(--line);
+      }
+      @media (max-width: 600px) {
+        dialog,
+        dialog.big {
+          margin: auto 0 0;
+          width: 100%;
+          max-width: 100%;
+          border-radius: 22px 22px 0 0;
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+      }
+      .bhead {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .bhead .cv {
+        width: 84px;
+        height: 120px;
+      }
+      .bsec {
+        margin-top: 20px;
+      }
+      .bsec p {
+        margin: 6px 0 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .bsec ul {
+        margin: 6px 0 0 20px;
+        list-style: disc;
+      }
+      .mute {
+        color: var(--mute);
+      }
+      .show {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--mute);
+        cursor: pointer;
+      }
+      .show input {
+        width: auto;
+        min-height: 0;
+      }
+      .steps {
+        margin: 10px 0 0 18px;
+        padding: 0;
+        font-size: 14.5px;
+        color: var(--mute);
+      }
+      .steps li {
+        margin: 3px 0;
+      }
+      .res {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: var(--bg);
+        font-size: 14.5px;
+      }
+      .res.good {
+        border-left: 4px solid var(--pri);
+      }
+      .res.warn {
+        border-left: 4px solid var(--amber);
+      }
+      .res.bad {
+        border-left: 4px solid var(--bad);
+      }
+      .res ul {
+        margin: 6px 0 0 18px;
+        list-style: disc;
+      }
+      #toast {
+        position: fixed;
+        left: 50%;
+        top: calc(14px + env(safe-area-inset-top));
+        transform: translate(-50%, -30px);
+        max-width: min(560px, calc(100vw - 24px));
+        background: var(--ink);
+        color: var(--bg);
+        padding: 12px 18px;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 15px;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.25s;
+        z-index: 2147483000;
+        text-align: center;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      #toast.err {
+        background: var(--bad);
+        color: var(--onbad);
+      }
+      #toast.ok {
+        background: var(--pri);
+        color: var(--onpri);
+      }
+      input[type="date"] {
+        cursor: pointer;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.9;
+        padding: 4px;
+      }
+      .stars {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .stars button {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        border: 1.5px solid var(--line);
+        background: var(--bg);
+        color: color-mix(in srgb, var(--mute) 40%, transparent);
+        font-size: 26px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+      }
+      .stars button.on {
+        color: var(--amber);
+        border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+        background: color-mix(in srgb, var(--amber) 14%, transparent);
+      }
+      .stars button.clr {
+        width: auto;
+        padding: 0 12px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--mute);
+      }
+      .quick {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 2px 14px;
+        margin-top: 18px;
+        padding: 4px 16px 14px;
+        border-radius: 14px;
+        background: var(--bg);
+      }
+      :focus-visible {
+        outline: 3px solid var(--amber);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="brand">
+          <img class="logo" src="logo.svg" alt="" width="40" height="40" />
+          <div>
+            <h1>Shelf Ledger</h1>
+            <p>Your Notion book library</p>
+          </div>
+        </div>
+        <nav aria-label="Main">
+          <button class="navb on" data-v="add" type="button">Add books</button>
+          <button class="navb" data-v="lib" type="button">
+            Library <span class="npill" id="libCount"></span>
+          </button>
+        </nav>
+        <button
+          class="hbtn"
+          id="settingsBtn"
+          type="button"
+          aria-label="Settings"
+          title="Settings"
+        >
+          ⚙
+        </button>
+      </header>
+
+      <!-- ADD BOOKS -->
+      <main id="viewAdd">
+        <section class="card" aria-label="Find books">
+          <div class="cardtop">
+            <div class="tabs" role="tablist">
+              <button class="tab on" data-t="one" role="tab" type="button">
+                Search
+              </button>
+              <button class="tab" data-t="many" role="tab" type="button">
+                Search many
+              </button>
+            </div>
+            <label class="switch"
+              ><input type="checkbox" id="batch" /><span class="track"></span
+              ><span>Batch mode</span></label
+            >
+          </div>
+
+          <div id="paneOne">
+            <div class="bar">
+              <input
+                id="q"
+                placeholder="ISBN or book title"
+                aria-label="ISBN or book title"
+                enterkeyhint="search"
+                autocomplete="off"
+                data-en
+              />
+              <button class="btn pri" id="goBtn" type="button">Go</button>
+              <button class="btn ghost" id="clearBtn" type="button">
+                Clear
+              </button>
+            </div>
+            <p class="ferr" id="qErr" role="alert" hidden></p>
+            <p class="hint">
+              Type an ISBN to save that exact book, or a title (add the author
+              to narrow it down). English only. Books already in your library
+              are marked.
+            </p>
+            <ul id="resList"></ul>
+          </div>
+
+          <div id="paneMany" hidden>
+            <label class="f" for="bulk"
+              >One book per line: ISBNs, titles, or both</label
+            >
+            <textarea
+              id="bulk"
+              data-en
+              placeholder="9788124800492&#10;Dune, Frank Herbert&#10;Atomic Habits&#10;The Alchemist"
+              autocomplete="off"
+            ></textarea>
+            <p class="ferr" id="bulkErr" role="alert" hidden></p>
+            <div class="bar" style="margin-top: 12px">
+              <button class="btn pri" id="manyGo" type="button">Go</button>
+              <button class="btn ghost" id="manyClear" type="button">
+                Clear
+              </button>
+            </div>
+            <p class="hint">
+              Up to 20 lines at a time. You choose the right edition for each
+              before anything is added.
+            </p>
+            <div id="manyRes"></div>
+          </div>
+
+          <button class="lnk" id="manualBtn" type="button">
+            Can't find it? Add a book manually
+          </button>
+        </section>
+
+        <section class="card" aria-label="Your list">
+          <div class="listhead">
+            <h2>Your list <span class="count" id="qcount">0</span></h2>
+            <button class="btn ghost sm" id="clearList" type="button" hidden>
+              Clear list
+            </button>
+          </div>
+          <p class="hint" style="margin: 0">
+            Review or edit books here, then save them all to Notion in one go.
+          </p>
+          <ul id="queue"></ul>
+          <div class="empty" id="qempty">
+            Nothing here yet. Turn on <strong>Batch mode</strong> and add books,
+            or use <strong>Search many</strong>.
+          </div>
+          <div class="savebar">
+            <button class="btn pri" id="pushBtn" type="button" disabled>
+              Save all to Notion
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- LIBRARY -->
+      <main id="viewLib" hidden>
+        <section class="card" aria-label="Library">
+          <div class="libtop">
+            <h2>Library <span class="count" id="lCount">0</span></h2>
+            <div class="bar">
+              <button class="btn ghost sm" id="refreshBtn" type="button">
+                Refresh</button
+              ><button class="btn ghost sm" id="exportBtn" type="button">
+                Export
+              </button>
+            </div>
+          </div>
+          <div class="bar">
+            <input
+              id="lq"
+              placeholder="Search title, author, ISBN…"
+              aria-label="Search your library"
+              autocomplete="off"
+            />
+            <button class="btn ghost" id="lqClear" type="button">Clear</button>
+          </div>
+          <div class="filters">
+            <select id="fGenre" aria-label="Filter by genre"></select>
+            <select id="fStatus" aria-label="Filter by status"></select>
+            <select id="fRating" aria-label="Filter by rating">
+              <option value="">Any rating</option>
+              <option value="5">5 stars</option>
+              <option value="4">4 stars and up</option>
+              <option value="3">3 stars and up</option>
+              <option value="none">Not rated</option>
+            </select>
+            <select id="sortBy" aria-label="Sort by">
+              <option value="created">Recently added</option>
+              <option value="name">Title</option>
+              <option value="author">Author</option>
+              <option value="rating">Rating</option>
+              <option value="finished">Date finished</option>
+              <option value="started">Date started</option>
+              <option value="price">Price</option>
+              <option value="serial">Serial number</option>
+            </select>
+            <button
+              class="btn ghost sm"
+              id="dirBtn"
+              type="button"
+              style="min-height: 44px"
+            ></button>
+            <button
+              class="btn ghost sm"
+              id="resetBtn"
+              type="button"
+              style="min-height: 44px"
+            >
+              Reset filters
+            </button>
+          </div>
+          <p class="hint" id="lInfo"></p>
+          <div id="lTable" role="table" aria-label="Your books"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- manual add / edit a list entry -->
+    <dialog id="dlg" aria-labelledby="dTitle">
+      <div class="dbody">
+        <h2 id="dTitle">Add a book manually</h2>
+        <p class="ferr" id="dErr" role="alert" hidden></p>
+        <div id="dFields"></div>
+        <div class="dbar">
+          <button class="btn pri" id="dSave" type="button">Save</button
+          ><button class="btn ghost" id="dCancel" type="button">Cancel</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- a book from your library: journal page, edit, download, delete -->
+    <dialog id="bookDlg" class="big" aria-labelledby="bTitle">
+      <div class="dbody">
+        <div id="bView">
+          <div class="bhead" id="bHead"></div>
+          <div id="bQuick"></div>
+          <div id="bSecs"></div>
+          <div class="dbar" id="bBar"></div>
+        </div>
+        <div id="bEdit" hidden>
+          <h2>Edit book</h2>
+          <p class="ferr" id="eErr" role="alert" hidden></p>
+          <div id="eFields"></div>
+          <div id="eSecs"></div>
+          <div class="dbar">
+            <button class="btn pri" id="eSave" type="button">
+              Save to Notion</button
+            ><button class="btn ghost" id="eCancel" type="button">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="setDlg" aria-labelledby="sTitle">
+      <div class="dbody">
+        <h2 id="sTitle">Connect to Notion</h2>
+        <p class="hint" id="sMsg">
+          Your details are saved only in this browser.
+        </p>
+        <ol class="steps">
+          <li>
+            Go to notion.so/my-integrations, create an Internal integration, and
+            copy its secret.
+          </li>
+          <li>
+            In Notion, open your book table, click ••• then Connections, and add
+            that integration.
+          </li>
+          <li>Paste the secret and the table's link (or its ID) below.</li>
+        </ol>
+        <label class="f" for="sToken">Notion integration secret</label>
+        <input
+          id="sToken"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <label class="show"
+          ><input type="checkbox" id="sShow" /> Show secret</label
+        >
+        <label class="f" for="sDb">Database link or ID</label>
+        <input id="sDb" autocomplete="off" spellcheck="false" />
+        <label class="f" for="sKey"
+          >Google Books API key
+          <span class="opt"
+            >(optional, helps if searches come back empty)</span
+          ></label
+        >
+        <input id="sKey" autocomplete="off" spellcheck="false" />
+        <div id="sResult"></div>
+        <div class="dbar">
+          <button class="btn pri" id="sTest" type="button">
+            Test connection</button
+          ><button class="btn ghost" id="sClose" type="button">Done</button>
+        </div>
+        <button class="lnk" id="sForget" type="button">
+          Forget these details on this device
+        </button>
+      </div>
+    </dialog>
+
+    <dialog id="expDlg" aria-labelledby="xTitle">
+      <div class="dbody">
+        <h2 id="xTitle">Export your library</h2>
+        <p class="hint">Downloads every book in your Notion database.</p>
+        <label class="f" for="xFmt">Format</label>
+        <select id="xFmt">
+          <option value="csv">CSV (opens in any spreadsheet)</option>
+          <option value="xlsx">Excel (.xlsx)</option>
+          <option value="docx">Word (.docx)</option>
+        </select>
+        <label class="show" id="xJWrap" hidden
+          ><input type="checkbox" id="xJournals" /> Include each book's journal
+          pages (first 60 books, slower)</label
+        >
+        <div class="dbar">
+          <button class="btn pri" id="xGo" type="button">Download</button
+          ><button class="btn ghost" id="xCancel" type="button">Cancel</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="infoDlg" aria-labelledby="iTitle">
+      <div class="dbody">
+        <div class="bhead" id="iHead"></div>
+        <div class="bsec">
+          <h3>Description</h3>
+          <p id="iDesc"></p>
+        </div>
+        <div class="dbar">
+          <button class="btn pri" id="iAdd" type="button" hidden>Add</button
+          ><button class="btn ghost" id="iClose" type="button">Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="mdl" aria-labelledby="mTitle">
+      <div class="dbody">
+        <h2 id="mTitle"></h2>
+        <p class="hint" id="mMsg" style="font-size: 15px"></p>
+        <div class="dbar" style="border: 0; margin-top: 8px">
+          <button class="btn pri" id="mOk" type="button">OK</button
+          ><button class="btn ghost" id="mCancel" type="button">Cancel</button>
+        </div>
+      </div>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      const GENRES = [
+        "Fiction",
+        "Non-fiction",
+        "Science",
+        "Technology",
+        "History",
+        "Biography",
+        "Self-help",
+        "Business",
+        "Children",
+        "Fantasy",
+        "Mystery",
+        "Romance",
+        "Poetry",
+        "Religion",
+        "Textbook",
+        "Other",
+      ];
+      const STATUSES = ["To Read", "Reading", "Finished"];
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s == null ? "" : s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      const clean = (v) => String(v || "").replace(/[-\s]/g, "");
+      const isIsbn = (d) => /^(\d{13}|\d{9}[\dXx])$/.test(d);
+      const NON_LATIN =
+        /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}\s]/gu;
+      const isEn = (s) =>
+        !/[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}\s]/u.test(
+          s || "",
+        );
+      const ld = (k, d) => {
+        try {
+          const v = JSON.parse(localStorage.getItem(k));
+          return v == null ? d : v;
+        } catch (e) {
+          return d;
+        }
+      };
+      let cfg = ld("sl3.cfg", {}),
+        queue = ld("sl3.q", []),
+        library = [],
+        libLoaded = false,
+        libError = "",
+        libTruncated = false;
+      let busy = false,
+        found = [],
+        groups = [],
+        ctx = null,
+        cur = null,
+        sortDir = -1,
+        tt;
+      const saveCfg = () => {
+        try {
+          localStorage.setItem("sl3.cfg", JSON.stringify(cfg));
+        } catch (e) {}
+      };
+      const saveQ = () => {
+        try {
+          localStorage.setItem("sl3.q", JSON.stringify(queue));
+        } catch (e) {}
+      };
+      const hasCreds = () => !!(cfg.token && cfg.db);
+      // A modal pop-up sits above everything on the page, so the message box moves into the top-most open
+      // pop-up while one is open (otherwise it would appear behind it), and back to the page when it closes.
+      const modalStack = [];
+      {
+        const orig = HTMLDialogElement.prototype.showModal;
+        HTMLDialogElement.prototype.showModal = function () {
+          orig.call(this);
+          const i = modalStack.indexOf(this);
+          if (i >= 0) modalStack.splice(i, 1);
+          modalStack.push(this);
+        };
+      }
+      document.addEventListener(
+        "close",
+        (e) => {
+          const i = modalStack.indexOf(e.target);
+          if (i >= 0) modalStack.splice(i, 1);
+          const t = $("toast");
+          if (t && e.target.contains(t)) document.body.appendChild(t);
+        },
+        true,
+      );
+      function toast(t, type) {
+        const e = $("toast"),
+          top = [...modalStack].reverse().find((d) => d.open),
+          host = top || document.body;
+        if (e.parentNode !== host) host.appendChild(e);
+        e.textContent = t;
+        e.className = "show " + (type || "");
+        clearTimeout(tt);
+        tt = setTimeout(() => (e.className = ""), 4800);
+      }
+      // clicking anywhere on a date box opens the calendar (not only the tiny icon)
+      document.addEventListener("click", (e) => {
+        const t = e.target;
+        if (t && t.matches && t.matches('input[type="date"]') && t.showPicker) {
+          try {
+            t.showPicker();
+          } catch (_) {}
+        }
+      });
+
+      // ---- ISBN helpers (so ISBN-10 and ISBN-13 of the same book match) ----
+      function i10of13(i) {
+        if (!/^978\d{10}$/.test(i)) return "";
+        const d = i.slice(3, 12);
+        let t = 0;
+        for (let k = 0; k < 9; k++) t += +d[k] * (10 - k);
+        const c = (11 - (t % 11)) % 11;
+        return d + (c === 10 ? "X" : c);
+      }
+      function i13of10(i) {
+        const d = "978" + i.slice(0, 9);
+        let t = 0;
+        for (let k = 0; k < 12; k++) t += +d[k] * (k % 2 ? 3 : 1);
+        return d + ((10 - (t % 10)) % 10);
+      }
+      function isbnKeys(i) {
+        i = clean(i).toUpperCase();
+        if (!i) return [];
+        const k = [i];
+        if (/^978\d{10}$/.test(i)) k.push(i10of13(i));
+        else if (/^\d{9}[\dX]$/.test(i)) k.push(i13of10(i));
+        return k;
+      }
+      const norm = (s) =>
+        String(s || "")
+          .trim()
+          .toLowerCase();
+      function matches(a, b) {
+        const ka = isbnKeys(a.isbn),
+          kb = isbnKeys(b.isbn);
+        if (ka.length && kb.length) return ka.some((k) => kb.includes(k));
+        return (
+          !!norm(a.name) &&
+          norm(a.name) === norm(b.name) &&
+          norm(a.author) === norm(b.author)
+        );
+      }
+      const ownedBook = (b) => library.find((x) => matches(x, b));
+
+      // ---- in-app confirm dialog (replaces the browser's pop-up) ----
+      function ask({
+        title,
+        msg = "",
+        ok = "OK",
+        cancel = "Cancel",
+        danger = false,
+      }) {
+        return new Promise((res) => {
+          const d = $("mdl");
+          $("mTitle").textContent = title;
+          $("mMsg").textContent = msg;
+          $("mOk").textContent = ok;
+          $("mOk").classList.toggle("danger", danger);
+          $("mOk").classList.toggle("pri", !danger);
+          $("mCancel").textContent = cancel;
+          let done = false;
+          const finish = (v) => {
+            if (done) return;
+            done = true;
+            d.removeEventListener("close", onClose);
+            if (d.open) d.close();
+            res(v);
+          };
+          const onClose = () => finish(false);
+          $("mOk").onclick = () => finish(true);
+          $("mCancel").onclick = () => finish(false);
+          d.addEventListener("close", onClose);
+          d.showModal();
+          $("mCancel").focus();
+        });
+      }
+
+      // ---- API ----
+      function call(body) {
+        const h = { "Content-Type": "application/json" };
+        if (cfg.token) h["x-notion-token"] = cfg.token;
+        if (cfg.db) h["x-notion-db"] = cfg.db;
+        if (cfg.gkey) h["x-google-key"] = cfg.gkey;
+        return fetch("/api/book", {
+          method: "POST",
+          headers: h,
+          body: JSON.stringify(body),
+        });
+      }
+      async function api(body) {
+        const r = await call(body),
+          d = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const e = new Error(d.error || "Something went wrong");
+          e.code = d.code;
+          if (["NO_CREDS", "BAD_TOKEN", "BAD_DB"].includes(d.code))
+            setTimeout(() => openSettings(d.error), 0);
+          throw e;
+        }
+        return d;
+      }
+      async function guard(fn, btn) {
+        if (busy) return;
+        busy = true;
+        if (btn) btn.disabled = true;
+        try {
+          return await fn();
+        } catch (e) {
+          toast(e.message, "err");
+        } finally {
+          busy = false;
+          if (btn) btn.disabled = false;
+        }
+      }
+      function download(f) {
+        const bin = atob(f.base64),
+          u = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([u], { type: f.mime }));
+        a.download = f.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }
+
+      // ---- inline warnings + English-only typing ----
+      function showErr(id, msg) {
+        const e = $(id + "Err");
+        e.textContent = msg;
+        e.hidden = false;
+        $(id).setAttribute("aria-invalid", "true");
+        $(id).focus();
+      }
+      let warnedAt = 0;
+      document.addEventListener("input", (e) => {
+        const t = e.target;
+        const er = t.id && $(t.id + "Err");
+        if (er) {
+          er.hidden = true;
+          t.removeAttribute("aria-invalid");
+        }
+        if (t.hasAttribute && t.hasAttribute("data-en")) {
+          const v = t.value,
+            c = v.replace(NON_LATIN, "");
+          if (c !== v) {
+            t.value = c;
+            if (Date.now() - warnedAt > 3000) {
+              warnedAt = Date.now();
+              toast("Only English letters are allowed here.", "err");
+            }
+          }
+        }
+      });
+
+      // ---- the book form used for manual add, list edits and library edits ----
+      const starsHTML = (p) =>
+        `<div class="stars" id="${p}Stars" role="radiogroup" aria-label="Rating">${[1, 2, 3, 4, 5].map((n) => `<button type="button" role="radio" aria-checked="false" aria-label="${n} star${n > 1 ? "s" : ""}" data-s="${n}">★</button>`).join("")}<button type="button" class="clr" data-s="0" hidden>Clear</button></div><input type="hidden" id="${p}Rating">`;
+      function paintStars(p) {
+        const v = Number($(p + "Rating").value) || 0;
+        $(p + "Stars")
+          .querySelectorAll("[data-s]")
+          .forEach((b) => {
+            const n = Number(b.dataset.s);
+            if (!n) return;
+            b.classList.toggle("on", n <= v);
+            b.setAttribute("aria-checked", String(n === v));
+          });
+        $(p + "Stars").querySelector(".clr").hidden = !v;
+      }
+      function setStars(p, n) {
+        $(p + "Rating").value = n ? String(n) : "";
+        paintStars(p);
+      }
+      function wireStars(p, onChange) {
+        $(p + "Stars").onclick = (e) => {
+          const b = e.target.closest("[data-s]");
+          if (!b) return;
+          const n = Number(b.dataset.s),
+            cur = Number($(p + "Rating").value) || 0;
+          setStars(p, n === cur ? 0 : n);
+          if (onChange) onChange();
+        };
+      }
+      function fieldsHTML(p) {
+        return `<label class="f" for="${p}Isbn">ISBN <span class="opt">(optional)</span></label><input id="${p}Isbn" inputmode="numeric" autocomplete="off">
+  <label class="f" for="${p}Name">Book name</label><input id="${p}Name" data-en autocomplete="off">
+  <label class="f" for="${p}Author">Author</label><input id="${p}Author" data-en autocomplete="off">
+  <div class="two"><div><label class="f" for="${p}Genre">Genre</label><select id="${p}Genre"><option value="">Select a genre</option>${GENRES.map((g) => `<option>${g}</option>`).join("")}</select></div>
+  <div><label class="f" for="${p}Status">Status</label><select id="${p}Status">${STATUSES.map((g) => `<option>${g}</option>`).join("")}</select></div></div>
+  <div id="${p}OtherWrap" hidden><label class="f" for="${p}Other">Other genre <span class="opt">(optional)</span></label><input id="${p}Other" data-en placeholder="Type your own genre" autocomplete="off"></div>
+  <div class="two"><div><label class="f" for="${p}Price">Price <span class="opt">(optional)</span></label><input id="${p}Price" type="number" inputmode="decimal" min="0" step="0.01"></div>
+  <div><label class="f" for="${p}Pages">Pages <span class="opt">(optional)</span></label><input id="${p}Pages" type="number" inputmode="numeric" min="0" step="1"></div></div>
+  <div class="two"><div><label class="f" for="${p}Started">Date started <span class="opt">(optional)</span></label><input id="${p}Started" type="date"></div>
+  <div><label class="f" for="${p}Finished">Date finished <span class="opt">(optional)</span></label><input id="${p}Finished" type="date"></div></div>
+  <label class="f">Rating <span class="opt">(optional)</span></label>${starsHTML(p)}`;
+      }
+      function wireFields(p) {
+        $(p + "Genre").onchange = () => {
+          $(p + "OtherWrap").hidden = $(p + "Genre").value !== "Other";
+        };
+        $(p + "Started").onchange = () => {
+          // picking a start date also moves a "To Read" book to "Reading"
+          $(p + "Finished").min = $(p + "Started").value || "";
+          if ($(p + "Started").value && $(p + "Status").value === "To Read")
+            $(p + "Status").value = "Reading";
+        };
+        $(p + "Finished").onchange = () => {
+          if ($(p + "Finished").value) $(p + "Status").value = "Finished";
+        };
+        wireStars(p);
+      }
+      function fillFields(p, b) {
+        b = b || {};
+        $(p + "Isbn").value = b.isbn || "";
+        $(p + "Name").value = b.name || "";
+        $(p + "Author").value = b.author || "";
+        const g = b.genre || "",
+          known = !g || GENRES.includes(g);
+        $(p + "Genre").value = known ? g : "Other";
+        $(p + "Other").value = known ? "" : g;
+        $(p + "OtherWrap").hidden = $(p + "Genre").value !== "Other";
+        const st = b.status || "To Read",
+          sel = $(p + "Status");
+        if (![...sel.options].some((o) => o.value === st))
+          sel.add(new Option(st, st));
+        sel.value = st;
+        $(p + "Price").value = b.price === "" || b.price == null ? "" : b.price;
+        $(p + "Pages").value = b.pages === "" || b.pages == null ? "" : b.pages;
+        $(p + "Started").value = b.started || "";
+        $(p + "Finished").value = b.finished || "";
+        $(p + "Finished").min = b.started || "";
+        setStars(p, Number(b.rating) || 0);
+      }
+      function readFields(p) {
+        return {
+          isbn: clean($(p + "Isbn").value),
+          name: $(p + "Name").value.trim(),
+          author: $(p + "Author").value.trim(),
+          genre: $(p + "Genre").value,
+          genreOther: $(p + "Other").value.trim(),
+          status: $(p + "Status").value,
+          price: $(p + "Price").value,
+          pages: $(p + "Pages").value,
+          started: $(p + "Started").value,
+          finished: $(p + "Finished").value,
+          rating: $(p + "Rating").value,
+        };
+      }
+      function checkFields(f, needName) {
+        if (needName && !f.name) return "Enter the book name.";
+        if (!isEn(f.name) || !isEn(f.author) || !isEn(f.genreOther))
+          return "Use English letters only for the name, author and genre.";
+        if (f.isbn && !isIsbn(f.isbn))
+          return "An ISBN has 10 or 13 digits. Leave it empty if you don't have one.";
+        if (f.started && f.finished && f.finished < f.started)
+          return "The finish date can't be before the start date.";
+        return "";
+      }
+      function formErr(p, msg) {
+        const e = $(p + "Err");
+        e.textContent = msg;
+        e.hidden = false;
+        e.scrollIntoView({ block: "nearest" });
+        toast(msg, "err");
+        const nm = $(p + "Name");
+        if (nm && /name/i.test(msg)) {
+          nm.setAttribute("aria-invalid", "true");
+          nm.focus();
+        }
+      }
+      ["dlg", "bookDlg"].forEach((id) =>
+        $(id).addEventListener("input", (e) => {
+          $("dErr").hidden = true;
+          $("eErr").hidden = true;
+          if (e.target.id === "dName" || e.target.id === "eName")
+            e.target.removeAttribute("aria-invalid");
+        }),
+      );
+      const shownGenre = (b) =>
+        b.genre === "Other" && b.genreOther ? b.genreOther : b.genre;
+
+      // ---- rows (search results and the list) ----
+      const coverImg = (b) =>
+        b.cover
+          ? `<img class="cv" src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+          : `<div class="cv ph" aria-hidden="true">📖</div>`;
+      const stars = (n) =>
+        n === "" || n == null ? "" : "★".repeat(n) + "☆".repeat(5 - n);
+      function fmtDate(d) {
+        if (!d) return "";
+        const x = new Date(d + "T00:00:00");
+        return isNaN(x)
+          ? d
+          : x.toLocaleDateString(undefined, {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            });
+      }
+      function row(b, acts, note) {
+        const desc = "";
+        return `<li class="row">${coverImg(b)}<div class="meta"><strong>${esc(b.name || note || "Will be looked up when you save")}</strong>${b.author ? `<span>${esc(b.author)}${b.year ? " · " + esc(b.year) : ""}</span>` : ""}
+    <div class="chips">${shownGenre(b) ? `<i>${esc(shownGenre(b))}</i>` : ""}${b.rating ? `<i>${stars(b.rating)}</i>` : ""}${b.started ? `<i>Started ${esc(fmtDate(b.started))}</i>` : ""}${b.finished ? `<i>Finished ${esc(fmtDate(b.finished))}</i>` : ""}${b.price !== "" && b.price != null ? `<i>${esc(b.price)}</i>` : ""}${b.isbn ? `<i class="m">${esc(b.isbn)}</i>` : ""}${acts.owned ? '<i class="ok">✓ In your library</i>' : ""}</div>${desc}</div>
+    <div class="acts">${acts.html || ""}</div></li>`;
+      }
+
+      // ---- saving ----
+      function upsertLib(b) {
+        if (!b) return;
+        const i = library.findIndex((x) => x.id === b.id);
+        if (i >= 0) library[i] = b;
+        else library.unshift(b);
+        libLoaded = true;
+        updateCounts();
+        if (!$("viewLib").hidden) renderLib();
+      }
+      async function saveNow(b, extra) {
+        const d = await api({ action: "save", ...b, ...(extra || {}) });
+        upsertLib(d.book);
+        if (d.duplicate) {
+          toast(
+            "Already in your library: " + ((d.book && d.book.name) || b.name),
+            "err",
+          );
+          return false;
+        }
+        toast("Saved to Notion: " + d.book.name, "ok");
+        return true;
+      }
+      async function addOrSave(b) {
+        const own = ownedBook(b);
+        if (own) {
+          toast("You already have this in your library: " + own.name, "err");
+          return false;
+        }
+        if ($("batch").checked) {
+          if (queue.some((x) => matches(x, b))) {
+            toast("Already in your list", "err");
+            return false;
+          }
+          queue.unshift({ ...b, _k: uid() });
+          saveQ();
+          renderQueue();
+          toast("Added to your list", "ok");
+          return true;
+        }
+        return saveNow(b);
+      }
+
+      // ---- single search ----
+      function go() {
+        const v = $("q").value.trim();
+        if (!v) {
+          showErr(
+            "q",
+            "Please type an ISBN or a book title before pressing Go.",
+          );
+          return;
+        }
+        const d = clean(v);
+        guard(async () => {
+          if (/^\d{10,}$/.test(d) || /^\d{9}[\dXx]$/.test(d)) {
+            if (!isIsbn(d)) {
+              toast(
+                "An ISBN has 10 or 13 digits. You entered " + d.length + ".",
+                "err",
+              );
+              return;
+            }
+            const own = ownedBook({ isbn: d });
+            if (own) {
+              toast(
+                "You already have this in your library: " + own.name,
+                "err",
+              );
+              return;
+            }
+            toast("Looking up " + d + "…");
+            const r = await api({ action: "lookup", isbn: d });
+            if (!r.found) {
+              toast(
+                "No English-language match for that ISBN. You can add it manually.",
+                "err",
+              );
+              openDlg("manual", { isbn: d });
+              return;
+            }
+            showResults([]);
+            if (await addOrSave(r)) $("q").value = "";
+          } else {
+            toast("Searching…");
+            const r = await api({ action: "search", query: v });
+            showResults(r.results || []);
+            if (!(r.results || []).length)
+              toast(
+                "No books found. Try adding the author's name, or use the ISBN." +
+                  (r.debug ? " (" + r.debug + ")" : ""),
+                "err",
+              );
+          }
+        }, $("goBtn"));
+      }
+      /*function showResults(list){
+  found=list;
+  $("resList").innerHTML=list.map((b,i)=>{const o=ownedBook(b);return row(b,{owned:!!o,html:`<button class="btn ghost sm" data-v="${i}" type="button">View</button>`+(o?"":`<button class="btn pri sm" data-a="${i}" type="button">Add</button>`)})}).join("");
+}*/
+      function showResults(list) {
+        found = list;
+        $("resList").innerHTML = list
+          .map((b, i) => {
+            const o = ownedBook(b);
+            return row(b, {
+              owned: !!o,
+              html: o
+                ? ""
+                : `<button class="btn pri sm" data-a="${i}" type="button">Add</button>`,
+            });
+          })
+          .join("");
+      }
+
+      $("resList").onclick = async (e) => {
+        if (e.target.dataset.v !== undefined) {
+          const i = +e.target.dataset.v;
+          showInfo(
+            found[i],
+            ownedBook(found[i])
+              ? null
+              : () => {
+                  const a = document.querySelector(`#resList [data-a="${i}"]`);
+                  if (a) a.click();
+                },
+          );
+          return;
+        }
+        const i = e.target.dataset.a;
+        if (i === undefined) return;
+        const btn = e.target;
+        if (await guard(() => addOrSave(found[+i]), btn)) {
+          btn.textContent = "Added ✓";
+          btn.disabled = true;
+        }
+      };
+      $("goBtn").onclick = go;
+      $("q").onkeydown = (e) => {
+        if (e.key === "Enter") go();
+      };
+      $("clearBtn").onclick = () => {
+        $("q").value = "";
+        $("qErr").hidden = true;
+        $("q").removeAttribute("aria-invalid");
+        showResults([]);
+        $("q").focus();
+      };
+
+      // ---- search many ----
+      function groupLabel(r) {
+        return (
+          (r.name || "Not found online (save as untitled)") +
+          (r.author ? " · " + r.author : "") +
+          (r.year ? " (" + r.year + ")" : "") +
+          (r.isbn ? " · " + r.isbn : "") +
+          (ownedBook(r) ? " — already in your library" : "")
+        );
+      }
+      $("manyGo").onclick = () => {
+        const lines = $("bulk")
+          .value.split("\n")
+          .map((x) => x.trim())
+          .filter(Boolean);
+        if (!lines.length) {
+          showErr(
+            "bulk",
+            "Please enter at least one ISBN or title (one per line) before pressing Go.",
+          );
+          return;
+        }
+        const parts = [];
+        for (const l of lines) {
+          const toks = l.split(/[\s,;]+/).map((t) => t.replace(/-/g, ""));
+          if (toks.every(isIsbn)) parts.push(...toks);
+          else parts.push(l);
+        }
+        if (parts.length > 20)
+          toast("Only the first 20 lines are searched at once.");
+        guard(async () => {
+          toast("Searching " + Math.min(parts.length, 20) + " books…");
+          const d = await api({
+            action: "searchMany",
+            queries: parts.slice(0, 20),
+          });
+          groups = d.groups || [];
+          $("manyRes").innerHTML =
+            groups
+              .map(
+                (g, gi) =>
+                  `<div class="grp"><div class="q">${esc(g.query)}</div>${
+                    g.results.length
+                      ? `<select data-g="${gi}" aria-label="Choose a match for ${esc(g.query)}">${g.results.map((r, ri) => `<option value="${ri}">${esc(groupLabel(r))}</option>`).join("")}<option value="-1">Skip this one</option></select><button class="btn ghost sm" data-gv="${gi}" type="button" style="margin-top:8px">View description</button>`
+                      : `<div class="nomatch">No match found${g.debug ? " (" + esc(g.debug) + ")" : ""}</div>`
+                  }</div>`,
+              )
+              .join("") +
+            (groups.length
+              ? `<div class="bar" style="margin-top:14px"><button class="btn pri" id="addMany" type="button">Add selected to my list</button></div>`
+              : "");
+          toast("Choose the right edition for each, then add them.");
+        }, $("manyGo"));
+      };
+      $("manyRes").onclick = (e) => {
+        if (e.target.dataset.gv !== undefined) {
+          const gi = +e.target.dataset.gv,
+            sel = document.querySelector(`#manyRes select[data-g="${gi}"]`);
+          showInfo(groups[gi].results[+sel.value]);
+          return;
+        }
+        if (e.target.id !== "addMany") return;
+        let n = 0,
+          dup = 0;
+        document.querySelectorAll("#manyRes select").forEach((sel) => {
+          const ri = +sel.value;
+          if (ri < 0) return;
+          const r = groups[+sel.dataset.g].results[ri];
+          if (ownedBook(r) || queue.some((x) => matches(x, r))) {
+            dup++;
+            return;
+          }
+          queue.push({ ...r, _k: uid() });
+          n++;
+        });
+        saveQ();
+        renderQueue();
+        toast(
+          n +
+            " added to your list" +
+            (dup
+              ? ", " + dup + " skipped (already in your library or list)"
+              : ""),
+          n ? "ok" : "",
+        );
+        if (n) {
+          $("manyRes").innerHTML = "";
+          $("bulk").value = "";
+          $("queue").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
+      $("manyClear").onclick = () => {
+        $("bulk").value = "";
+        $("bulkErr").hidden = true;
+        $("manyRes").innerHTML = "";
+        groups = [];
+        $("bulk").focus();
+      };
+
+      // ---- description pop-up ----
+      let infoAdd = null;
+      function showInfo(b, onAdd) {
+        if (!b) return;
+        const bits = [
+          shownGenre(b),
+          b.pages !== "" && b.pages != null ? b.pages + " pages" : "",
+          b.price !== "" && b.price != null ? "Price " + b.price : "",
+        ].filter(Boolean);
+        $("iHead").innerHTML =
+          `${coverImg(b)}<div class="meta"><h2 id="iTitle">${esc(b.name || "Not found online")}</h2><span>${b.author ? "by " + esc(b.author) : ""}${b.year ? " · " + esc(b.year) : ""}</span><div class="chips">${bits.map((x) => `<i>${esc(x)}</i>`).join("")}${b.isbn ? `<i class="m">${esc(b.isbn)}</i>` : ""}</div></div>`;
+        $("iDesc").textContent =
+          b.description || "No description is available for this edition.";
+        $("iDesc").className = b.description ? "" : "mute";
+        infoAdd = onAdd || null;
+        $("iAdd").hidden = !infoAdd;
+        $("infoDlg").showModal();
+      }
+      $("iClose").onclick = () => $("infoDlg").close();
+      $("iAdd").onclick = () => {
+        const f = infoAdd;
+        $("infoDlg").close();
+        if (f) f();
+      };
+
+      // ---- your list ----
+      function renderQueue() {
+        $("qcount").textContent = queue.length;
+        $("queue").innerHTML = queue
+          .map((b, i) =>
+            row(
+              b,
+              {
+                html: `<button class="btn ghost sm" data-v="${i}" type="button">View</button><button class="btn ghost sm" data-e="${i}" type="button">Edit</button><button class="btn ghost sm" data-r="${i}" type="button">Remove</button>`,
+              },
+              b.notFound ? "Not found online. Tap Edit to add details" : "",
+            ),
+          )
+          .join("");
+        $("qempty").hidden = queue.length > 0;
+        $("clearList").hidden = !queue.length;
+        $("pushBtn").disabled = !queue.length;
+        $("pushBtn").textContent = queue.length
+          ? `Save ${queue.length} ${queue.length === 1 ? "book" : "books"} to Notion`
+          : "Save all to Notion";
+      }
+      $("queue").onclick = (e) => {
+        if (e.target.dataset.v !== undefined)
+          showInfo(queue[+e.target.dataset.v]);
+        if (e.target.dataset.e !== undefined)
+          openDlg("queue", queue[+e.target.dataset.e], +e.target.dataset.e);
+        if (e.target.dataset.r !== undefined) {
+          queue.splice(+e.target.dataset.r, 1);
+          saveQ();
+          renderQueue();
+        }
+      };
+      $("clearList").onclick = async () => {
+        if (
+          await ask({
+            title: "Clear your list?",
+            msg:
+              "This removes all " +
+              queue.length +
+              " books from the list. Books already saved to Notion are not affected.",
+            ok: "Clear list",
+            danger: true,
+          })
+        ) {
+          queue = [];
+          saveQ();
+          renderQueue();
+        }
+      };
+      $("pushBtn").onclick = async () => {
+        await guard(async () => {
+          if (!queue.length) return;
+          toast(
+            "Saving " + queue.length + " books. This can take a few seconds…",
+          );
+          const books = queue.map((b) => ({ ...b, key: b._k }));
+          let res = [];
+          for (let i = 0; i < books.length; i += 30) {
+            // one request per 30 books keeps each call within the time limit
+            const d = await api({
+              action: "saveMany",
+              books: books.slice(i, i + 30),
+            });
+            res = res.concat(d.results || []);
+          }
+          const ok = res.filter((r) => r.saved),
+            dup = res.filter((r) => r.duplicate),
+            bad = res.filter((r) => r.error);
+          ok.forEach((r) => upsertLib(r.book));
+          dup.forEach((r) => upsertLib(r.book));
+          const failed = new Set(bad.map((r) => r.key));
+          queue = queue.filter((b) => failed.has(b._k));
+          saveQ();
+          toast(
+            "Saved " +
+              ok.length +
+              (dup.length
+                ? ", skipped " + dup.length + " already in your library"
+                : "") +
+              (bad.length
+                ? ", " + bad.length + " failed: " + bad[0].error
+                : ""),
+            bad.length ? "err" : "ok",
+          );
+        }, $("pushBtn"));
+        renderQueue();
+      };
+
+      // ---- manual add / edit a list entry ----
+      function openDlg(mode, b, idx) {
+        ctx = { mode, idx };
+        $("dErr").hidden = true;
+        $("dTitle").textContent =
+          mode === "queue" ? "Edit entry" : "Add a book manually";
+        fillFields("d", b);
+        $("dSave").textContent =
+          mode === "queue"
+            ? "Save changes"
+            : $("batch").checked
+              ? "Add to list"
+              : "Save to Notion";
+        $("dlg").showModal();
+      }
+      $("dSave").onclick = () =>
+        guard(async () => {
+          const f = readFields("d"),
+            err = checkFields(f, ctx.mode !== "queue");
+          if (err) {
+            formErr("d", err);
+            return;
+          }
+          if (ctx.mode === "queue") {
+            const c = queue[ctx.idx];
+            queue[ctx.idx] = {
+              ...c,
+              ...f,
+              notFound: f.name ? false : c.notFound,
+            };
+            saveQ();
+            renderQueue();
+            toast("Entry updated", "ok");
+            $("dlg").close();
+            return;
+          }
+          const dupe = ownedBook(f);
+          if (dupe) {
+            // adding a copy on purpose is only possible from this manual form
+            const yes = await ask({
+              title: "Already in your library",
+              msg:
+                "“" +
+                dupe.name +
+                "” is already in your Notion library. Add this as another copy?",
+              ok: "Add duplicate",
+              cancel: "Cancel",
+            });
+            if (!yes) return;
+            if (await saveNow(f, { manual: true, force: true }))
+              $("dlg").close();
+            return;
+          }
+          if ($("batch").checked) {
+            queue.unshift({ ...f, _k: uid() });
+            saveQ();
+            renderQueue();
+            toast("Added to your list", "ok");
+            $("dlg").close();
+            return;
+          }
+          if (await saveNow(f, { manual: true })) $("dlg").close();
+        }, $("dSave"));
+      $("dCancel").onclick = () => $("dlg").close();
+      $("manualBtn").onclick = () => openDlg("manual", { isbn: "" });
+
+      // ---- library ----
+      function updateCounts() {
+        $("libCount").textContent = library.length || "";
+        $("lCount").textContent = library.length;
+      }
+      async function loadLibrary() {
+        if (!hasCreds()) {
+          libError =
+            "Connect your Notion library in Settings to see your books here.";
+          renderLib();
+          return;
+        }
+        libError = "";
+        $("lInfo").textContent = "Loading your library…";
+        try {
+          const d = await api({ action: "list" });
+          library = d.books;
+          libTruncated = !!d.truncated;
+          libLoaded = true;
+        } catch (e) {
+          libError = e.message;
+        }
+        updateCounts();
+        renderLib();
+      }
+      function fillSelect(id, first, vals) {
+        const sel = $(id),
+          keep = sel.value;
+        sel.innerHTML =
+          `<option value="">${first}</option>` +
+          vals.map((v) => `<option>${esc(v)}</option>`).join("");
+        sel.value = vals.includes(keep) ? keep : "";
+      }
+      function viewList() {
+        const q = norm($("lq").value),
+          g = $("fGenre").value,
+          s = $("fStatus").value,
+          r = $("fRating").value;
+        const list = library.filter((b) => {
+          if (
+            q &&
+            !norm(`${b.name} ${b.author} ${b.isbn} ${b.genre}`).includes(q)
+          )
+            return false;
+          if (g && b.genre !== g) return false;
+          if (s && b.status !== s) return false;
+          if (r === "none") return b.rating === "";
+          if (r && !(b.rating !== "" && b.rating >= Number(r))) return false;
+          return true;
+        });
+        const val = {
+          created: (b) => b.created,
+          name: (b) => norm(b.name),
+          author: (b) => norm(b.author),
+          rating: (b) => b.rating,
+          finished: (b) => b.finished,
+          started: (b) => b.started,
+          price: (b) => b.price,
+          serial: (b) => Number(String(b.serial).replace(/\D/g, "")) || "",
+        }[$("sortBy").value];
+        list.sort((a, b) => {
+          const x = val(a),
+            y = val(b),
+            ex = x === "" || x == null,
+            ey = y === "" || y == null;
+          if (ex && ey) return 0;
+          if (ex) return 1;
+          if (ey) return -1;
+          return (typeof x === "string" ? x.localeCompare(y) : x - y) * sortDir;
+        });
+        return list;
+      }
+      function libRow(b) {
+        const meta = [
+          shownGenre(b),
+          b.status,
+          stars(b.rating),
+          b.finished
+            ? "Finished " + fmtDate(b.finished)
+            : b.started
+              ? "Started " + fmtDate(b.started)
+              : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        return `<div class="trow" role="row" tabindex="0" data-open="${esc(b.id)}">
+    <div class="tc t-title" role="cell">${coverImg(b)}<div class="meta"><strong>${esc(b.name || "Untitled")}</strong><span>${esc(b.author || "Unknown author")}</span><span class="mmeta">${esc(meta)}</span></div></div>
+    <div class="tc" role="cell">${esc(b.genre)}</div>
+    <div class="tc" role="cell">${b.status ? `<span class="stat s-${esc(b.status.replace(/\s/g, ""))}">${esc(b.status)}</span>` : ""}</div>
+    <div class="tc star" role="cell">${stars(b.rating)}</div>
+    <div class="tc" role="cell">${esc(fmtDate(b.started))}</div><div class="tc" role="cell">${esc(fmtDate(b.finished))}</div>
+    <div class="tc" role="cell">${b.price !== "" ? esc(b.price) : ""}</div></div>`;
+      }
+      function renderLib() {
+        fillSelect(
+          "fGenre",
+          "All genres",
+          [...new Set(library.map((b) => b.genre).filter(Boolean))].sort(),
+        );
+        fillSelect("fStatus", "All statuses", [
+          ...new Set([
+            ...STATUSES,
+            ...library.map((b) => b.status).filter(Boolean),
+          ]),
+        ]);
+        $("dirBtn").textContent =
+          sortDir === 1 ? "Ascending ↑" : "Descending ↓";
+        const list = viewList(),
+          filtered =
+            $("lq").value ||
+            $("fGenre").value ||
+            $("fStatus").value ||
+            $("fRating").value;
+        $("resetBtn").hidden = !filtered;
+        if (libError) {
+          $("lInfo").textContent = "";
+          $("lTable").innerHTML =
+            `<div class="empty">${esc(libError)}<br><button class="btn pri sm" id="retryBtn" type="button" style="margin-top:12px">${hasCreds() ? "Try again" : "Open Settings"}</button></div>`;
+          return;
+        }
+        if (!libLoaded) {
+          $("lInfo").textContent = "Loading your library…";
+          $("lTable").innerHTML = "";
+          return;
+        }
+        $("lInfo").textContent =
+          (list.length === library.length
+            ? `${library.length} ${library.length === 1 ? "book" : "books"}`
+            : `Showing ${list.length} of ${library.length} books`) +
+          (libTruncated
+            ? " (very large library: only the first 2,500 are shown)"
+            : "");
+        $("lTable").innerHTML = list.length
+          ? `<div class="thead" role="row"><div role="columnheader">Book</div><div role="columnheader">Genre</div><div role="columnheader">Status</div><div role="columnheader">Rating</div><div role="columnheader">Started</div><div role="columnheader">Finished</div><div role="columnheader">Price</div></div>` +
+            list.map(libRow).join("")
+          : `<div class="empty">${library.length ? "No books match your search or filters." : "Your library is empty. Add your first book from the Add books tab."}</div>`;
+      }
+      ["lq", "fGenre", "fStatus", "fRating"].forEach((id) =>
+        ["input", "change"].forEach((ev) =>
+          $(id).addEventListener(ev, renderLib),
+        ),
+      );
+      $("sortBy").onchange = () => {
+        sortDir = ["name", "author", "serial"].includes($("sortBy").value)
+          ? 1
+          : -1;
+        renderLib();
+      };
+      $("dirBtn").onclick = () => {
+        sortDir = -sortDir;
+        renderLib();
+      };
+      $("lqClear").onclick = () => {
+        $("lq").value = "";
+        renderLib();
+        $("lq").focus();
+      };
+      $("resetBtn").onclick = () => {
+        $("lq").value = "";
+        $("fGenre").value = "";
+        $("fStatus").value = "";
+        $("fRating").value = "";
+        renderLib();
+      };
+      $("refreshBtn").onclick = () => guard(loadLibrary, $("refreshBtn"));
+      $("lTable").onclick = (e) => {
+        if (e.target.id === "retryBtn") {
+          hasCreds() ? loadLibrary() : openSettings();
+          return;
+        }
+        const r = e.target.closest("[data-open]");
+        if (r) openBook(r.dataset.open);
+      };
+      $("lTable").onkeydown = (e) => {
+        if ((e.key === "Enter" || e.key === " ") && e.target.dataset.open) {
+          e.preventDefault();
+          openBook(e.target.dataset.open);
+        }
+      };
+
+      // ---- a book from the library ----
+      async function openBook(id) {
+        $("bEdit").hidden = true;
+        $("bView").hidden = false;
+        $("bHead").innerHTML = '<p class="mute">Loading the Notion page…</p>';
+        $("bSecs").innerHTML = "";
+        $("bBar").innerHTML = "";
+        $("bookDlg").showModal();
+        try {
+          cur = await api({ action: "getPage", id });
+          renderBook();
+        } catch (e) {
+          toast(e.message, "err");
+          $("bookDlg").close();
+        }
+      }
+      function headHTML() {
+        const b = cur.book;
+        return `${coverImg(b)}<div class="meta"><h2 id="bTitle">${esc(b.name || "Untitled")}</h2><span>by ${esc(b.author || "Unknown author")}</span>
+    <div class="chips">${[
+      b.genre,
+      b.status,
+      b.rating ? stars(b.rating) : "",
+      b.started ? "Started " + fmtDate(b.started) : "",
+      b.finished ? "Finished " + fmtDate(b.finished) : "",
+      b.pages !== "" ? b.pages + " pages" : "",
+      b.price !== "" ? "Price " + b.price : "",
+    ]
+      .filter(Boolean)
+      .map((x) => `<i>${esc(x)}</i>`)
+      .join(
+        "",
+      )}${b.isbn ? `<i class="m">${esc(b.isbn)}</i>` : ""}${b.serial ? `<i class="m">#${esc(b.serial)}</i>` : ""}</div></div>`;
+      }
+      function renderBook() {
+        const b = cur.book;
+        $("bHead").innerHTML = headHTML();
+        renderQuick();
+        $("bSecs").innerHTML = cur.sections.length
+          ? cur.sections
+              .map((s) => {
+                const lines = s.text.split("\n").filter((l) => l.trim());
+                const body = !lines.length
+                  ? '<p class="mute">Nothing written yet.</p>'
+                  : s.kind === "bullets"
+                    ? `<ul>${lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>`
+                    : `<p>${esc(s.text)}</p>`;
+                return `<div class="bsec"><h3>${esc(s.heading || "Notes")}</h3>${body}${s.locked ? '<p class="hint">This section has content the app can\'t show or edit. Open the page in Notion to change it.</p>' : ""}</div>`;
+              })
+              .join("")
+          : `<div class="bsec"><p class="mute">This page has no journal sections yet.</p><button class="btn pri sm" id="addJ" type="button">Add journal sections</button></div>`;
+        $("bBar").innerHTML =
+          `<button class="btn pri" id="bEditBtn" type="button">Edit</button><button class="btn ghost" data-dl="pdf" type="button">Download PDF</button><button class="btn ghost" data-dl="docx" type="button">Download Word</button><a class="btn ghost" href="${esc(b.url)}" target="_blank" rel="noopener">Open in Notion</a><button class="btn dangerline" id="bDel" type="button">Delete</button><button class="btn ghost" id="bClose" type="button" style="margin-left:auto">Close</button>`;
+      }
+      function renderQuick() {
+        const b = cur.book;
+        $("bQuick").innerHTML =
+          `<div class="quick"><div><label class="f" for="vStatus">Status</label><select id="vStatus">${STATUSES.map((x) => `<option>${x}</option>`).join("")}</select></div>
+    <div><label class="f" for="vStarted">Date started</label><input type="date" id="vStarted"></div>
+    <div><label class="f" for="vFinished">Date finished</label><input type="date" id="vFinished"></div>
+    <div><label class="f">Rating</label>${starsHTML("v")}</div></div>
+    <p class="hint" style="margin:6px 2px 0">Changes to status, dates and rating are saved to Notion as soon as you make them.</p>`;
+        const st = b.status || "To Read",
+          sel = $("vStatus");
+        if (![...sel.options].some((o) => o.value === st))
+          sel.add(new Option(st, st));
+        sel.value = st;
+        $("vStarted").value = b.started || "";
+        $("vFinished").value = b.finished || "";
+        $("vFinished").min = b.started || "";
+        setStars("v", Number(b.rating) || 0);
+        wireStars("v", () => quickSave());
+      }
+      let quickTimer;
+      function quickSave(which) {
+        const b = cur.book;
+        if (
+          which === "started" &&
+          $("vStarted").value &&
+          $("vStatus").value === "To Read"
+        )
+          $("vStatus").value = "Reading";
+        if (which === "finished" && $("vFinished").value)
+          $("vStatus").value = "Finished";
+        $("vFinished").min = $("vStarted").value || "";
+        const f = {
+          status: $("vStatus").value,
+          started: $("vStarted").value,
+          finished: $("vFinished").value,
+          rating: $("vRating").value,
+        };
+        if (f.started && f.finished && f.finished < f.started) {
+          toast("The finish date can't be before the start date.", "err");
+          renderQuick();
+          return;
+        }
+        clearTimeout(quickTimer);
+        quickTimer = setTimeout(async () => {
+          try {
+            const d = await api({ action: "update", id: b.id, ...f });
+            cur.book = d.book;
+            upsertLib(d.book);
+            $("bHead").innerHTML = headHTML();
+            toast("Saved to Notion", "ok");
+          } catch (e) {
+            toast(e.message, "err");
+            renderQuick();
+          }
+        }, 250);
+      }
+      $("bQuick").onchange = (e) => {
+        const id = e.target.id;
+        if (id === "vStatus") quickSave("status");
+        if (id === "vStarted") quickSave("started");
+        if (id === "vFinished") quickSave("finished");
+      };
+      $("bookDlg").onclick = async (e) => {
+        const t = e.target;
+        if (t.id === "bClose") $("bookDlg").close();
+        if (t.id === "bEditBtn") startEdit();
+        if (t.id === "addJ")
+          guard(async () => {
+            await api({ action: "addJournal", id: cur.book.id });
+            cur = await api({ action: "getPage", id: cur.book.id });
+            renderBook();
+          }, t);
+        if (t.dataset && t.dataset.dl)
+          guard(async () => {
+            toast("Preparing your download…");
+            const d = await api({
+              action: "exportJournal",
+              id: cur.book.id,
+              format: t.dataset.dl,
+            });
+            download(d.file);
+            toast("Downloaded " + d.file.name, "ok");
+          }, t);
+        if (t.id === "bDel") {
+          const yes = await ask({
+            title: "Delete this book?",
+            msg:
+              "“" +
+              cur.book.name +
+              "” will be moved to Notion's trash, along with its journal. You can restore it from the trash in Notion.",
+            ok: "Delete book",
+            danger: true,
+          });
+          if (yes)
+            guard(async () => {
+              await api({ action: "remove", id: cur.book.id });
+              library = library.filter((x) => x.id !== cur.book.id);
+              updateCounts();
+              renderLib();
+              $("bookDlg").close();
+              toast("Deleted “" + cur.book.name + "”", "ok");
+            }, t);
+        }
+      };
+      function startEdit() {
+        fillFields("e", cur.book);
+        $("eErr").hidden = true;
+        $("eSecs").innerHTML = cur.sections
+          .map(
+            (
+              s,
+              i,
+            ) => `<label class="f" for="sec${i}">${esc(s.heading || "Notes")}${s.kind === "bullets" ? ' <span class="opt">(one item per line)</span>' : ""}</label>
+    <textarea id="sec${i}" data-en ${s.locked ? "readonly" : ""}>${esc(s.text)}</textarea>${s.locked ? '<p class="hint">This section has content the app can\'t edit. Change it in Notion.</p>' : s.formatted ? '<p class="hint">Bold, links and other formatting in this section are replaced if you change its text.</p>' : ""}`,
+          )
+          .join("");
+        $("bView").hidden = true;
+        $("bEdit").hidden = false;
+        $("bookDlg").scrollTo(0, 0);
+      }
+      $("eCancel").onclick = () => {
+        $("bEdit").hidden = true;
+        $("bView").hidden = false;
+      };
+      $("eSave").onclick = () =>
+        guard(async () => {
+          const f = readFields("e"),
+            err = checkFields(f, true);
+          if (err) {
+            formErr("e", err);
+            return;
+          }
+          const id = cur.book.id;
+          await api({ action: "update", id, ...f });
+          const changed = cur.sections
+            .map((s, i) => ({ s, v: $("sec" + i).value }))
+            .filter((x) => !x.s.locked && x.v !== x.s.text)
+            .map((x) => ({
+              headingId: x.s.headingId,
+              kind: x.s.kind,
+              text: x.v,
+              ids: x.s.ids,
+            }));
+          if (changed.length)
+            await api({ action: "savePage", id, sections: changed });
+          cur = await api({ action: "getPage", id });
+          upsertLib(cur.book);
+          $("bEdit").hidden = true;
+          $("bView").hidden = false;
+          renderBook();
+          toast("Saved to Notion", "ok");
+        }, $("eSave"));
+
+      // ---- export ----
+      $("exportBtn").onclick = () => {
+        $("xJWrap").hidden = $("xFmt").value !== "docx";
+        $("expDlg").showModal();
+      };
+      $("xFmt").onchange = () => {
+        $("xJWrap").hidden = $("xFmt").value !== "docx";
+      };
+      $("xCancel").onclick = () => $("expDlg").close();
+      $("xGo").onclick = () =>
+        guard(async () => {
+          toast("Preparing your export…");
+          const d = await api({
+            action: "exportLibrary",
+            format: $("xFmt").value,
+            includeJournals:
+              $("xFmt").value === "docx" && $("xJournals").checked,
+          });
+          download(d.file);
+          $("expDlg").close();
+          toast("Downloaded " + d.file.name, "ok");
+        }, $("xGo"));
+
+      // ---- settings ----
+      function openSettings(msg) {
+        $("sMsg").textContent =
+          msg || "Your details are saved only in this browser.";
+        $("sToken").value = cfg.token || "";
+        $("sDb").value = cfg.db || "";
+        $("sKey").value = cfg.gkey || "";
+        $("sResult").innerHTML = "";
+        if (!$("setDlg").open) $("setDlg").showModal();
+      }
+      function readSettings() {
+        cfg = {
+          token: $("sToken").value.replace(/[^\x21-\x7E]/g, ""),
+          db: $("sDb").value.trim(),
+          gkey: $("sKey").value.replace(/[^\x21-\x7E]/g, ""),
+        };
+        saveCfg();
+      }
+      function showCheck(r) {
+        const fix = r.missing.length || r.wrong.some((w) => w.fixable);
+        const lines = [
+          ...r.missing.map(
+            (n) => `<li>Missing column: <strong>${esc(n)}</strong></li>`,
+          ),
+          ...r.wrong.map(
+            (w) =>
+              `<li><strong>${esc(w.name)}</strong> should be type "${esc(w.expected)}" but is ${esc(w.actual)}${w.fixable ? "" : ". Change its type in Notion."}</li>`,
+          ),
+        ];
+        $("sResult").innerHTML =
+          `<div class="res ${r.ok ? "good" : "warn"}">${r.ok ? `✓ Connected to “${esc(r.database)}”. All columns are ready.` : `Connected to “${esc(r.database)}”, but some columns need attention:<ul>${lines.join("")}</ul>${fix ? '<button class="btn pri sm" id="sFix" type="button" style="margin-top:10px">Fix automatically</button>' : ""}`}${r.ok && !r.hasSerial ? '<p class="hint">Tip: add a "Serial Number" column of type Unique ID in Notion if you want numbered books.</p>' : ""}</div>`;
+      }
+      $("sTest").onclick = () =>
+        guard(async () => {
+          readSettings();
+          if (!hasCreds()) {
+            $("sResult").innerHTML =
+              '<div class="res bad">Enter both your Notion secret and your database link or ID.</div>';
+            return;
+          }
+          $("sResult").innerHTML = '<div class="res">Checking…</div>';
+          try {
+            const r = await api({ action: "check" });
+            showCheck(r);
+            if (r.ok) loadLibrary();
+          } catch (e) {
+            $("sResult").innerHTML =
+              `<div class="res bad">${esc(e.message)}</div>`;
+          }
+        }, $("sTest"));
+      $("sResult").onclick = (e) => {
+        if (e.target.id === "sFix")
+          guard(async () => {
+            const r = await api({ action: "setup" });
+            showCheck(r);
+            toast(
+              r.added.length
+                ? "Added: " + r.added.join(", ")
+                : "Nothing to add",
+              "ok",
+            );
+            if (r.ok) loadLibrary();
+          }, e.target);
+      };
+      $("sShow").onchange = () => {
+        $("sToken").type = $("sShow").checked ? "text" : "password";
+      };
+      $("sClose").onclick = () => {
+        readSettings();
+        $("setDlg").close();
+        if (hasCreds() && !libLoaded) loadLibrary();
+      };
+      $("sForget").onclick = async () => {
+        if (
+          await ask({
+            title: "Forget your Notion details?",
+            msg: "They are removed from this browser. Your Notion data is not touched.",
+            ok: "Forget",
+            danger: true,
+          })
+        ) {
+          cfg = {};
+          saveCfg();
+          library = [];
+          libLoaded = false;
+          updateCounts();
+          renderLib();
+          openSettings("Details removed. Enter them again to reconnect.");
+        }
+      };
+      $("settingsBtn").onclick = () => openSettings();
+
+      // ---- navigation and tabs ----
+      function showView(v) {
+        $("viewAdd").hidden = v !== "add";
+        $("viewLib").hidden = v !== "lib";
+        document
+          .querySelectorAll(".navb")
+          .forEach((b) => b.classList.toggle("on", b.dataset.v === v));
+        if (v === "lib") {
+          renderLib();
+          if (!libLoaded && hasCreds() && !busy) loadLibrary();
+        }
+        window.scrollTo(0, 0);
+      }
+      document
+        .querySelectorAll(".navb")
+        .forEach((b) => (b.onclick = () => showView(b.dataset.v)));
+      document.querySelectorAll(".tab").forEach(
+        (t) =>
+          (t.onclick = () => {
+            document.querySelectorAll(".tab").forEach((x) => {
+              x.classList.toggle("on", x === t);
+              x.setAttribute("aria-selected", String(x === t));
+            });
+            $("paneOne").hidden = t.dataset.t !== "one";
+            $("paneMany").hidden = t.dataset.t !== "many";
+            (t.dataset.t === "many" ? $("bulk") : $("q")).focus();
+          }),
+      );
+
+      // ---- start ----
+      $("dFields").innerHTML = fieldsHTML("d");
+      $("eFields").innerHTML = fieldsHTML("e");
+      wireFields("d");
+      wireFields("e");
+      renderQueue();
+      updateCounts();
+      if (hasCreds()) loadLibrary();
+      else
+        setTimeout(
+          () =>
+            openSettings(
+              "Welcome! Connect your Notion library to get started.",
+            ),
+          300,
+        );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Shelf Ledger">
+  <rect width="96" height="96" rx="22" fill="#12362a"/>
+  <g>
+    <rect x="17" y="34" width="12" height="40" rx="2" fill="#e8a33d"/>
+    <rect x="31" y="24" width="11" height="50" rx="2" fill="#f5efe3"/>
+    <rect x="44" y="30" width="12" height="44" rx="2" fill="#2f7f79"/>
+    <rect x="58" y="22" width="11" height="52" rx="2" fill="#c8553d"/>
+    <rect x="68" y="30" width="12" height="44" rx="2" fill="#e8a33d" transform="rotate(14 74 74)"/>
+    <rect x="12" y="74" width="72" height="6" rx="3" fill="#e9d7b0"/>
+  </g>
+</svg>

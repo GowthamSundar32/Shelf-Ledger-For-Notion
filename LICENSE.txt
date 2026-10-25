@@ -1,0 +1,8 @@
+Shelf Ledger for Notion: Personal Use License
+
+You may use and modify this software for yourself, for your own Notion workspace.
+You may not resell, redistribute, share, or publish the files (original or modified).
+The software is provided "as is", without warranty of any kind.
+
+Shelf Ledger is an independent product. It is not made by, affiliated with, or endorsed by Notion Labs, Inc.
+Book data comes from third-party services (Google Books, Open Library). Their terms apply to that data.

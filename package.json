@@ -1,0 +1,13 @@
+{
+  "name": "shelf-ledger",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Add books to a Notion library by ISBN or title, browse and edit it, and export it",
+  "engines": { "node": ">=18" },
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "docx": "^9.0.0",
+    "exceljs": "^4.4.0",
+    "pdfkit": "^0.15.0"
+  }
+}

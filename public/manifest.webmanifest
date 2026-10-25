@@ -1,0 +1,14 @@
+{
+  "name": "Shelf Ledger",
+  "short_name": "Shelf Ledger",
+  "description": "Your Notion book library: add, browse, journal and export.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12362a",
+  "theme_color": "#12362a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
